@@ -53,7 +53,8 @@ app.post('/add-item', async (req, res) => {
     // Create item object with unique ID
     const newItem = {
         id: new Date().toISOString(),
-        message: userMessage.trim()
+        message: userMessage.trim(),
+        _partitionKey: "guestbook" // FIX
     };
 
     try {
@@ -88,13 +89,17 @@ app.put('/update-item/:id', async (req, res) => {
     if (!newMessage) return res.status(400).send("Message cannot be empty");
 
     try {
-        const { database } = await client.databases.createIfNotExists({ id: databaseId });
-        const { container } = await database.containers.createIfNotExists({ id: containerId });
+        const database = client.database(databaseId);
+        const container = database.container(containerId);
 
-        const { resource: item } = await container.item(id, id).read();
+        // Read the item
+        const { resource: item } = await container.item(id, "guestbook").read(); // FIX
+        
+        // Update the message
         item.message = newMessage;
 
-        await container.item(id, id).replace(item);
+        // Save updated item (message)
+        await container.item(id, "guestbook").replace(item); // FIX
         res.sendStatus(200);
     } catch (error) {
         console.error("Error updating item:", error);
@@ -110,7 +115,7 @@ app.delete('/delete-item/:id', async (req, res) => {
         const { database } = await client.databases.createIfNotExists({ id: databaseId });
         const { container } = await database.containers.createIfNotExists({ id: containerId });
 
-        await container.item(id, id).delete();
+        await container.item(id, "guestbook").delete(); // FIX
         res.sendStatus(200);
     } catch (error) {
         console.error("Error deleting item:", error);
