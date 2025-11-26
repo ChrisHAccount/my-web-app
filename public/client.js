@@ -35,4 +35,58 @@ document.addEventListener('DOMContentLoaded', () => {
             alert('Error adding message');
         }
     });
+    loadMessages(); // Load messages when the web page opens
 });
+
+// Fetch and render all messages in the list
+async function loadMessages() {
+    const container = document.getElementById('messagesList');
+    container.innerHTML = ""; // clear previous items
+
+    const res = await fetch('/items');
+    const items = await res.json();
+
+    items.forEach(item => {
+        const div = document.createElement('div');
+        div.className = "message-item";
+
+        div.innerHTML = `
+            <p>${item.message}</p>
+            <button class="updateBtn" data-id="${item.id}">Update</button>
+            <button class="deleteBtn" data-id="${item.id}">Delete</button>
+        `;
+
+        container.appendChild(div);
+    });
+
+    attachButtonEvents();
+}
+
+// Attach events to Update and Delete buttons
+function attachButtonEvents() {
+    document.querySelectorAll('.deleteBtn').forEach(btn => {
+        btn.addEventListener('click', async () => {
+            const id = btn.getAttribute('data-id');
+
+            await fetch(`/delete-item/${id}`, { method: 'DELETE' });
+            loadMessages();
+        });
+    });
+
+    document.querySelectorAll('.updateBtn').forEach(btn => {
+        btn.addEventListener('click', async () => {
+            const id = btn.getAttribute('data-id');
+            const newMessage = prompt("Enter new message:");
+
+            if (!newMessage) return;
+
+            await fetch(`/update-item/${id}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ message: newMessage })
+            });
+
+            loadMessages();
+        });
+    });
+}
