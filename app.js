@@ -65,6 +65,59 @@ app.post('/add-item', async (req, res) => {
     }
 });
 
+// GET route to read all items (guestbook messages)
+app.get('/items', async (req, res) => {
+    try {
+        const { database } = await client.databases.createIfNotExists({ id: databaseId });
+        const { container } = await database.containers.createIfNotExists({ id: containerId });
+
+        const { resources: items } = await container.items.query('SELECT * FROM c').fetchAll();
+
+        res.json(items);
+    } catch (error) {
+        console.error("Error fetching items:", error);
+        res.sendStatus(500);
+    }
+});
+
+// UPDATE an item by ID
+app.put('/update-item/:id', async (req, res) => {
+    const id = req.params.id;
+    const newMessage = req.body.message;
+
+    if (!newMessage) return res.status(400).send("Message cannot be empty");
+
+    try {
+        const { database } = await client.databases.createIfNotExists({ id: databaseId });
+        const { container } = await database.containers.createIfNotExists({ id: containerId });
+
+        const { resource: item } = await container.item(id, id).read();
+        item.message = newMessage;
+
+        await container.item(id, id).replace(item);
+        res.sendStatus(200);
+    } catch (error) {
+        console.error("Error updating item:", error);
+        res.sendStatus(500);
+    }
+});
+
+// DELETE an item by ID
+app.delete('/delete-item/:id', async (req, res) => {
+    const id = req.params.id;
+
+    try {
+        const { database } = await client.databases.createIfNotExists({ id: databaseId });
+        const { container } = await database.containers.createIfNotExists({ id: containerId });
+
+        await container.item(id, id).delete();
+        res.sendStatus(200);
+    } catch (error) {
+        console.error("Error deleting item:", error);
+        res.sendStatus(500);
+    }
+});
+
 // Start the server
 app.listen(port, () => {
     console.log(`Server is running on port ${port}`);
