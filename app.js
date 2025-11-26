@@ -9,7 +9,7 @@ const port = process.env.PORT || 3000;
 
 // Cosmos DB connection details
 const endpoint = "https://my-web-app.documents.azure.com:443/";
-const key = "GUttUNLySJiBZMbTBqEn8WKedp7dZqgf9OuLUn7KXAE5NSpTDalowcTyhx2WIGFZyQv8PutpW5TfACDbvUB61w==";
+const key = "tuYpzaKK2n4E4PdrOGzODDrWWyKqRPycZKNJPjq0s2PwfAapkY0btri7Dr9WgqOumPwPBBugHBkbACDbzXzxfA==";
 const client = new CosmosClient({ endpoint, key });
 
 // Your chosen database and container names
