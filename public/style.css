@@ -33,3 +33,23 @@ button {
     font-size: 16px;
     cursor: pointer;
 }
+
+.messages-list {
+    margin-top: 20px;
+    width: 320px;
+}
+
+.message-item {
+    background: #fff;
+    padding: 12px;
+    margin-bottom: 10px;
+    border-radius: 6px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.message-item button {
+    margin-left: 5px;
+}
